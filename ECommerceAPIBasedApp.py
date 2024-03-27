@@ -137,7 +137,43 @@ def search_products():
         return jsonify(search_results)
     else:
         return jsonify({'message': 'No matching products found'}), 404
+@app.route('/filter', methods=['GET'])
+def filter_products():
+    # Get filtering criteria from query parameters
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+    category = request.args.get('category')
 
+    filtered_products = products.copy()
+
+    # Filter products based on criteria
+    if min_price is not None:
+        filtered_products = [product for product in filtered_products if product['price'] >= min_price]
+    if max_price is not None:
+        filtered_products = [product for product in filtered_products if product['price'] <= max_price]
+    if category:
+        filtered_products = [product for product in filtered_products if product.get('category') == category]
+
+    if filtered_products:
+        return jsonify(filtered_products)
+    else:
+        return jsonify({'message': 'No products match the filtering criteria'}), 404
+
+@app.route('/sort', methods=['GET'])
+def sort_products():
+    # Get sorting criteria from query parameters
+    sort_by = request.args.get('sort_by')
+    reverse = request.args.get('reverse', 'false').lower() == 'true'
+
+    # Ensure valid sorting criteria
+    valid_sort_keys = ['id', 'name', 'price']
+    if sort_by not in valid_sort_keys:
+        return jsonify({'error': 'Invalid sort_by parameter. Valid options are: id, name, price'}), 400
+
+    # Sort products based on the sorting criteria
+    sorted_products = sorted(products, key=lambda x: x[sort_by], reverse=reverse)
+
+    return jsonify(sorted_products)
 print(carts)
 if __name__ == '__main__':
     app.run(debug=True)
