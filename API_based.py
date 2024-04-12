@@ -1,4 +1,14 @@
 from flask import Flask, request, jsonify, render_template
+from models import db, Product
+
+
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///products.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy
+db.init_app(app)
 
 app = Flask(__name__)
 app = Flask(__name__, static_url_path='/static')
